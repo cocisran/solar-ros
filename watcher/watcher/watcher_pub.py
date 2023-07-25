@@ -1,14 +1,16 @@
 import cv2
 import json
 import pkg_resources
+import numpy
 
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
 
-from solar_tools.ImageReader import take_pick_from_stream
+# from solar_tools.ImageReader import take_pick_from_stream
 from solar_tools.Model import  Yolo5
-
+from picamera2 import Picamera2
+import time
 
 from .redis_store import send_to_cache
 
@@ -20,6 +22,10 @@ class WactherPublisher(Node):
         self.publisher_ = self.create_publisher(String, 'solar_panel_watcher', 10)
         model_path = pkg_resources.resource_filename('watcher', 'models/bestV3.pt')
         self.yolo5 = Yolo5(model_path)
+        self.picam2 = Picamera2()
+        self.picam2.start()
+        self.get_logger().info("Starting Camera")
+        time.sleep(1)
         timer_period = 0.3  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
         self.i = 0
@@ -27,7 +33,8 @@ class WactherPublisher(Node):
     def timer_callback(self):
         msg = String()
         # leemos la imagen del stream 
-        image = take_pick_from_stream()
+        image = self.picam2.capture_image("main")
+        image = numpy.array(image)
         # la guardamos en el cache
         if send_to_cache(self.i, image):
             # si se guardo la procesamos por el modelo
