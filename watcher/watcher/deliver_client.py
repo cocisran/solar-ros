@@ -1,9 +1,13 @@
 import sys
+import json
+import numpy as np
+import cv2
+
 from solar_interfaces.srv import DeliverImg 
 import rclpy
 from rclpy.node import Node
 
-
+_RGB = 1
 class DeliverImgClient(Node):
 
     def __init__(self):
@@ -21,16 +25,22 @@ class DeliverImgClient(Node):
 
 
 def main():
-    rclpy.init()
+    try:
+        rclpy.init()
 
-    minimal_client = DeliverImgClient()
-    response = minimal_client.send_request(int(sys.argv[1]))
-    minimal_client.get_logger().info(
-       f'respuesta { response.photo_str}')
-
-    minimal_client.destroy_node()
-    rclpy.shutdown()
-
+        minimal_client = DeliverImgClient()
+        response = minimal_client.send_request(int(sys.argv[1]))
+        
+        minimal_client.get_logger().info(
+        f'respuesta { response.photo}')
+        img_bytes = np.array(response.photo, dtype=np.uint8)
+        img = cv2.imdecode(img_bytes, _RGB)
+        cv2.imshow("deliver_client", img)
+        cv2.waitKey(0)
+    finally:
+        minimal_client.destroy_node()
+        rclpy.shutdown()
+        cv2.destroyAllWindows()
 
 if __name__ == '__main__':
     main()
