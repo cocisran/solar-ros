@@ -32,6 +32,13 @@ def get_from_cache(clave : str):
         return True, cv2.imdecode(np.frombuffer(image_bytes, np.uint8), _RGB)
     return False, None
 
+def get_uint8(clave : str):
+    # recuperar la info
+    image_bytes = redis_client.get(clave)
+    if image_bytes:
+        return True, np.frombuffer(image_bytes, np.uint8)
+    return False, None
+
 def get_bytes( clave : str):
      # recuperar la info
     image_bytes = redis_client.get(clave)
@@ -41,6 +48,9 @@ def get_bytes( clave : str):
 
 def decode_img_from_bytes( bytes):
     return cv2.imdecode(np.frombuffer(bytes, np.uint8), _RGB)
+
+def decode_img_from_uint8(bytes):
+    return cv2.imdecode(bytes, _RGB)
     
 
 
