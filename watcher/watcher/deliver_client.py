@@ -3,6 +3,8 @@ import json
 import numpy as np
 import cv2
 
+from array import array
+
 from solar_interfaces.srv import DeliverImg 
 import rclpy
 from rclpy.node import Node
@@ -33,10 +35,14 @@ def main():
         
         minimal_client.get_logger().info(
         f'respuesta { response.photo}')
-        img_bytes = np.array(response.photo, dtype=np.uint8)
-        img = cv2.imdecode(img_bytes, _RGB)
-        cv2.imshow("deliver_client", img)
-        cv2.waitKey(0)
+        if response.photo != array('B'):
+            img_bytes = np.array(response.photo, dtype=np.uint8)
+            img = cv2.imdecode(img_bytes, _RGB)
+            cv2.imshow("deliver_client", img)
+            cv2.waitKey(0)
+        else:
+            minimal_client.get_logger().info(
+        f'arreglo vacio')
     finally:
         minimal_client.destroy_node()
         rclpy.shutdown()

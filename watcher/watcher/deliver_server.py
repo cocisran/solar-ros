@@ -1,6 +1,3 @@
-import cv2
-import json
-
 from solar_interfaces.srv import DeliverImg
 
 import rclpy
@@ -18,8 +15,11 @@ class DeliverService(Node):
     def deliver_photo(self, request, response):
         self.get_logger().info(f'Incoming request photo with id {request.photo_id}')
         ret, image = get_uint8(str(request.photo_id))
-        # print(image)
-        response.photo = [int(byte) for byte in image]
+        
+        response.photo = []
+        if ret:
+            response.photo = [int(byte) for byte in image]
+        self.get_logger().info(f'served photo with id {request.photo_id}')
         return response
 
 
