@@ -1,6 +1,7 @@
 data/*
 models/*
-
+*.hdf5
+**/test/
 python
 # Byte-compiled / optimized / DLL files
 *.pyc
